@@ -44,6 +44,7 @@ static int angle = 0;
 static int upper_limit = 114;
 static int lower_limit = 54;
 
+// Read the pin state of switch
 void ReadPin(int &pin_s) {
   static long lastUpdate_ = 0;
   if (millis() - lastUpdate_ >= 500) {
@@ -52,6 +53,7 @@ void ReadPin(int &pin_s) {
   }
 }
 
+// Set the servo angle
 void setServoAngle(int angle, int channel) {
   if (angle <= lower_limit) {
     angle = lower_limit;
@@ -63,6 +65,7 @@ void setServoAngle(int angle, int channel) {
             (uint32_t)pulseWidth); // Write the pulse width to the servo
 }
 
+// Keep rotating the servo
 void RotateServo(int channel) {
   static unsigned long lastUpdate = 0;
 
@@ -93,6 +96,7 @@ void RotateServo(int channel) {
   }
 }
 
+// Check if the parameter is valid
 bool ParamValidCheck(int param) {
   if (param >= 0 && param <= 300) {
     return false;
@@ -102,7 +106,7 @@ bool ParamValidCheck(int param) {
 
 unsigned long last_Update = 0;
 
-BLYNK_WRITE(V0) // Forward
+BLYNK_WRITE(V0) //Blink. Check whether wifi is working or not
 {
   if (millis() - last_Update < 500) {
     return;
@@ -122,7 +126,7 @@ BLYNK_WRITE(V0) // Forward
   }
 }
 
-BLYNK_WRITE(V1) // Backward
+BLYNK_WRITE(V1) // Keep rotating
 {
   last_Update = millis();
   if (ParamValidCheck(param.asInt())) {
@@ -170,7 +174,7 @@ BLYNK_WRITE(V2) // STOP
   }
 }
 
-BLYNK_WRITE(V4) // Horizontal Servo
+BLYNK_WRITE(V4) // Set upper angle limit of servo
 {
   if (millis() - last_Update < 500) {
     return;
@@ -181,7 +185,7 @@ BLYNK_WRITE(V4) // Horizontal Servo
   }
   upper_limit = param.asInt();
 }
-BLYNK_WRITE(V5) // Vertical Servo
+BLYNK_WRITE(V5) // Set the angle of servo
 {
   if (millis() - last_Update < 500) {
     return;
@@ -196,7 +200,7 @@ BLYNK_WRITE(V5) // Vertical Servo
   rotateServo1 = false;
 }
 
-BLYNK_WRITE(V6) {
+BLYNK_WRITE(V6) { // Set lower angle limit of servo
   if (millis() - last_Update < 500) {
     return;
   }
@@ -207,6 +211,7 @@ BLYNK_WRITE(V6) {
   lower_limit = param.asInt();
 }
 
+//Watchdog task
 void WatchdogTask(void *pvParameters) {
   while (1) {
     if (ESP.getFreeHeap() < 10000) {
